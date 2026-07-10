@@ -4,25 +4,25 @@ jobs:
   alf:
     runs-on: ubuntu-latest
     steps:
-      - name: Create manual activation file (try variants)
+      - name: Create manual activation file (offline mode)
         run: |
           mkdir -p out
-          docker run --rm -v "$PWD/out:/out" -u 0 -e HOME=/root gableroux/unity3d:2017.4.27f1-android bash -c '
+          docker pull -q gableroux/unity3d:2017.4.27f1-android
+          docker run --rm --network none -v "$PWD/out:/out" -u 0 -e HOME=/root gableroux/unity3d:2017.4.27f1-android bash -c '
             mkdir -p /root/.cache/unity3d /root/.local/share/unity3d
             cd /root
             run_unity() {
               echo "=== VARIANT: $* ==="
               timeout 240 xvfb-run --auto-servernum --server-args="-screen 0 640x480x24" \
                 /opt/Unity/Editor/Unity -logFile /root/unity_variant.log "$@" || echo "exit code: $?"
-              tail -n 40 /root/unity_variant.log 2>/dev/null || true
+              tail -n 25 /root/unity_variant.log 2>/dev/null || true
               found=$(find / -name "*.alf" -not -path "/proc/*" 2>/dev/null | head -n 5)
               echo "ALF found: $found"
               if [ -n "$found" ]; then cp -v $found /out/; chmod 666 /out/*.alf; return 0; fi
               return 1
             }
             run_unity -batchmode -createManualActivationFile && exit 0
-            run_unity -batchmode -nographics -createManualActivationFile && exit 0
-            run_unity -batchmode -nographics -quit -username dummy@example.com -password dummy -createManualActivationFile && exit 0
+            run_unity -batchmode -nographics -quit -createManualActivationFile && exit 0
             echo "ALL VARIANTS FAILED"; exit 1' || true
           ls -la out
       - name: Upload ALF
