@@ -6,27 +6,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download Android NDK r13b (required by Unity 2017.4 IL2CPP)
-        run: |
-          curl -sLo ndk.zip https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
-          unzip -q ndk.zip -d "$PWD/ndk"
-
       - name: Write Unity license
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         run: printf '%s' "$UNITY_LICENSE" > Unity_lic.ulf
 
-      - name: Build ARM64 APK
+      - name: Build ARM64 APK (Unity 2018.4.36f1, IL2CPP)
         run: |
-          docker run --rm -v "$PWD:/project" -w /project \
-            -e ANDROID_NDK_ROOT=/project/ndk/android-ndk-r13b \
-            gableroux/unity3d:2017.4.27f1-android bash -c '
-            xvfb-run --auto-servernum --server-args="-screen 0 640x480x24" \
-              /opt/Unity/Editor/Unity -batchmode -nographics -quit -logFile /dev/stdout \
+          docker run --rm -v "$PWD:/project" -w /project unityci/editor:ubuntu-2018.4.36f1-android-3.2.2 bash -c '
+            unity-editor -batchmode -nographics -quit -logFile /dev/stdout \
               -manualLicenseFile /project/Unity_lic.ulf || true
-            xvfb-run --auto-servernum --server-args="-screen 0 640x480x24" \
-              /opt/Unity/Editor/Unity -batchmode -nographics -quit -logFile /dev/stdout \
-              -projectPath /project -buildTarget Android -executeMethod CIBuild.BuildAndroid'
+            unity-editor -batchmode -nographics -quit -logFile /dev/stdout \
+              -projectPath /project -buildTarget Android -accept-apiupdate \
+              -executeMethod CIBuild.BuildAndroid'
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
