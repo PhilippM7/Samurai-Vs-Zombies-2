@@ -7,10 +7,17 @@ jobs:
       - name: Create manual activation file
         run: |
           mkdir -p out
-          docker run --rm -v "$PWD/out:/out" -w /out gableroux/unity3d:2017.4.27f1-android bash -c '
+          docker run --rm -v "$PWD/out:/out" -w /out -u 0 -e HOME=/root gableroux/unity3d:2017.4.27f1-android bash -c '
+            whoami; echo "HOME=$HOME"
+            mkdir -p /root/.cache/unity3d /root/.local/share/unity3d
             xvfb-run --auto-servernum --server-args="-screen 0 640x480x24" \
               /opt/Unity/Editor/Unity -batchmode -nographics -quit -logFile /dev/stdout \
-              -createManualActivationFile; ls -la; true'
+              -createManualActivationFile || true
+            echo "--- searching for .alf ---"
+            find / -name "*.alf" -not -path "/proc/*" 2>/dev/null || true
+            find / -name "*.alf" -not -path "/proc/*" -exec cp -v {} /out/ \; 2>/dev/null || true
+            chmod 666 /out/*.alf 2>/dev/null || true
+            ls -la /out; true'
           ls -la out
       - name: Upload ALF
         uses: actions/upload-artifact@v4
