@@ -1,0 +1,20 @@
+name: Unity Activation File
+on: workflow_dispatch
+jobs:
+  alf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create manual activation file
+        run: |
+          mkdir -p out
+          docker run --rm -v "$PWD/out:/out" -w /out gableroux/unity3d:2017.4.27f1-android bash -c '
+            xvfb-run --auto-servernum --server-args="-screen 0 640x480x24" \
+              /opt/Unity/Editor/Unity -batchmode -nographics -quit -logFile /dev/stdout \
+              -createManualActivationFile; ls -la; true'
+          ls -la out
+      - name: Upload ALF
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-activation-file
+          path: out/*.alf
+          if-no-files-found: error
