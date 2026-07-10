@@ -1,33 +1,37 @@
 name: Unity Activation File
 on: workflow_dispatch
 jobs:
-  alf:
+  alf-2018:
     runs-on: ubuntu-latest
     steps:
-      - name: Create manual activation file (offline mode)
+      - name: Create ALF with Unity 2018.4.36f1
         run: |
           mkdir -p out
-          docker pull -q gableroux/unity3d:2017.4.27f1-android
-          docker run --rm --network none -v "$PWD/out:/out" -u 0 -e HOME=/root gableroux/unity3d:2017.4.27f1-android bash -c '
-            mkdir -p /root/.cache/unity3d /root/.local/share/unity3d
-            cd /root
-            run_unity() {
-              echo "=== VARIANT: $* ==="
-              timeout 240 xvfb-run --auto-servernum --server-args="-screen 0 640x480x24" \
-                /opt/Unity/Editor/Unity -logFile /root/unity_variant.log "$@" || echo "exit code: $?"
-              tail -n 25 /root/unity_variant.log 2>/dev/null || true
-              found=$(find / -name "*.alf" -not -path "/proc/*" 2>/dev/null | head -n 5)
-              echo "ALF found: $found"
-              if [ -n "$found" ]; then cp -v $found /out/; chmod 666 /out/*.alf; return 0; fi
-              return 1
-            }
-            run_unity -batchmode -createManualActivationFile && exit 0
-            run_unity -batchmode -nographics -quit -createManualActivationFile && exit 0
-            echo "ALL VARIANTS FAILED"; exit 1' || true
+          docker run --rm -v "$PWD/out:/out" -w /out unityci/editor:ubuntu-2018.4.36f1-android-3.2.2 bash -c '
+            unity-editor -batchmode -nographics -quit -logFile /dev/stdout -createManualActivationFile || true
+            find / -name "*.alf" -not -path "/proc/*" -exec cp -v {} /out/ \; 2>/dev/null
+            chmod 666 /out/*.alf 2>/dev/null; ls -la /out; true'
           ls -la out
-      - name: Upload ALF
+      - name: Upload ALF 2018
         uses: actions/upload-artifact@v4
         with:
-          name: unity-activation-file
+          name: alf-2018
+          path: out/*.alf
+          if-no-files-found: error
+  alf-2019:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create ALF with Unity 2019.4.40f1
+        run: |
+          mkdir -p out
+          docker run --rm -v "$PWD/out:/out" -w /out unityci/editor:ubuntu-2019.4.40f1-android-3.2.2 bash -c '
+            unity-editor -batchmode -nographics -quit -logFile /dev/stdout -createManualActivationFile || true
+            find / -name "*.alf" -not -path "/proc/*" -exec cp -v {} /out/ \; 2>/dev/null
+            chmod 666 /out/*.alf 2>/dev/null; ls -la /out; true'
+          ls -la out
+      - name: Upload ALF 2019
+        uses: actions/upload-artifact@v4
+        with:
+          name: alf-2019
           path: out/*.alf
           if-no-files-found: error
