@@ -18,6 +18,11 @@ jobs:
           buildMethod: CIBuild.BuildAndroid
           customParameters: -accept-apiupdate
           allowDirtyBuild: true
+          androidKeystoreName: svz2.keystore
+          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          androidKeyaliasName: svz2
+          androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
