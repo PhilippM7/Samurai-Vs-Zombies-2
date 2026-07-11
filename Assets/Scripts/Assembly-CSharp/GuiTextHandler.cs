@@ -12,7 +12,7 @@ public class GuiTextHandler : MonoBehaviour
 
 	private bool mOffScreen;
 
-	private GUIText mGuiText;
+	private UnityEngine.UI.Text mGuiText;
 
 	private string mOldString;
 
@@ -20,7 +20,7 @@ public class GuiTextHandler : MonoBehaviour
 
 	private void Start()
 	{
-		mGuiText = base.gameObject.GetComponent<GUIText>();
+		mGuiText = base.gameObject.GetComponent<UnityEngine.UI.Text>();
 		if (TextObject == null)
 		{
 			Object.Destroy(base.gameObject);
@@ -52,13 +52,9 @@ public class GuiTextHandler : MonoBehaviour
 			if (flag != mOffScreen)
 			{
 				mOffScreen = flag;
-				if (flag)
+				if (mGuiText != null)
 				{
-					mGuiText.text = string.Empty;
-				}
-				else
-				{
-					mGuiText.text = mOldString;
+					mGuiText.text = (flag ? string.Empty : mOldString);
 				}
 			}
 		}
@@ -89,13 +85,9 @@ public class GuiTextHandler : MonoBehaviour
 		if (visible != mVisible)
 		{
 			mVisible = visible;
-			if (!visible)
+			if (mGuiText != null)
 			{
-				mGuiText.text = string.Empty;
-			}
-			else
-			{
-				mGuiText.text = mOldString;
+				mGuiText.text = (visible ? mOldString : string.Empty);
 			}
 			TextObject.Visible = !visible;
 		}
