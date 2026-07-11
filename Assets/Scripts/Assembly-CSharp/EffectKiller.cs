@@ -6,8 +6,6 @@ public class EffectKiller : MonoBehaviour
 
 	private bool mHadEffects;
 
-	private ParticleEmitter[] mEmitters;
-
 	private ParticleSystem[] mParticleSystems;
 
 	private Vector3 mOriginalScale = Vector3.one;
@@ -25,21 +23,12 @@ public class EffectKiller : MonoBehaviour
 	private void Start()
 	{
 		mParticleSystems = GetComponentsInChildren<ParticleSystem>();
-		mEmitters = GetComponentsInChildren<ParticleEmitter>();
-		mHadChildren = base.transform.GetChildCount() > 0;
-		mHadEffects = mParticleSystems.Length > 0 || mEmitters.Length > 0;
+		mHadChildren = base.transform.childCount > 0;
+		mHadEffects = mParticleSystems.Length > 0;
 	}
 
 	public void Cleanup()
 	{
-		ParticleEmitter[] array = mEmitters;
-		foreach (ParticleEmitter particleEmitter in array)
-		{
-			if (!(particleEmitter == null))
-			{
-				particleEmitter.emit = false;
-			}
-		}
 		base.gameObject.transform.parent = null;
 		base.gameObject.transform.localScale = mOriginalScale;
 		if (effectPool != null)
@@ -54,16 +43,8 @@ public class EffectKiller : MonoBehaviour
 
 	private void StopEmitting()
 	{
-		ParticleEmitter[] array = mEmitters;
-		foreach (ParticleEmitter particleEmitter in array)
-		{
-			if (!(particleEmitter == null))
-			{
-				particleEmitter.emit = false;
-			}
-		}
-		ParticleSystem[] array2 = mParticleSystems;
-		foreach (ParticleSystem particleSystem in array2)
+		ParticleSystem[] array = mParticleSystems;
+		foreach (ParticleSystem particleSystem in array)
 		{
 			if (!(particleSystem == null))
 			{
@@ -87,7 +68,7 @@ public class EffectKiller : MonoBehaviour
 				Cleanup();
 			}
 		}
-		if (mHadChildren && base.transform.GetChildCount() <= 0)
+		if (mHadChildren && base.transform.childCount <= 0)
 		{
 			Cleanup();
 		}
@@ -105,23 +86,7 @@ public class EffectKiller : MonoBehaviour
 				break;
 			}
 		}
-		if (flag)
-		{
-			return;
-		}
-		bool flag2 = false;
-		if (mEmitters != null)
-		{
-			ParticleEmitter[] array2 = mEmitters;
-			foreach (ParticleEmitter particleEmitter in array2)
-			{
-				if (!(particleEmitter == null) && particleEmitter.particleCount > 0)
-				{
-					flag2 = true;
-				}
-			}
-		}
-		if (!flag2)
+		if (!flag)
 		{
 			Cleanup();
 		}
