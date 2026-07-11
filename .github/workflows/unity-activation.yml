@@ -1,37 +1,17 @@
 name: Unity Activation File
 on: workflow_dispatch
 jobs:
-  alf-2018:
+  activate-2019:
     runs-on: ubuntu-latest
     steps:
-      - name: Create ALF with Unity 2018.4.36f1
+      - name: Test credential activation on 2019.4.40f1
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: |
-          mkdir -p out
-          docker run --rm -v "$PWD/out:/out" -w /out unityci/editor:ubuntu-2018.4.36f1-android-3.2.2 bash -c '
-            unity-editor -batchmode -nographics -quit -logFile /dev/stdout -createManualActivationFile || true
-            find / -name "*.alf" -not -path "/proc/*" -exec cp -v {} /out/ \; 2>/dev/null
-            chmod 666 /out/*.alf 2>/dev/null; ls -la /out; true'
-          ls -la out
-      - name: Upload ALF 2018
-        uses: actions/upload-artifact@v4
-        with:
-          name: alf-2018
-          path: out/*.alf
-          if-no-files-found: error
-  alf-2019:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create ALF with Unity 2019.4.40f1
-        run: |
-          mkdir -p out
-          docker run --rm -v "$PWD/out:/out" -w /out unityci/editor:ubuntu-2019.4.40f1-android-3.2.2 bash -c '
-            unity-editor -batchmode -nographics -quit -logFile /dev/stdout -createManualActivationFile || true
-            find / -name "*.alf" -not -path "/proc/*" -exec cp -v {} /out/ \; 2>/dev/null
-            chmod 666 /out/*.alf 2>/dev/null; ls -la /out; true'
-          ls -la out
-      - name: Upload ALF 2019
-        uses: actions/upload-artifact@v4
-        with:
-          name: alf-2019
-          path: out/*.alf
-          if-no-files-found: error
+          docker run --rm -e UNITY_EMAIL -e UNITY_PASSWORD unityci/editor:ubuntu-2019.4.40f1-android-3.2.2 bash -c '
+            unity-editor -batchmode -nographics -quit -logFile /dev/stdout \
+              -username "$UNITY_EMAIL" -password "$UNITY_PASSWORD" || echo "editor exit: $?"
+            echo "--- license files after activation attempt ---"
+            ls -la /root/.local/share/unity3d/Unity/ 2>/dev/null || echo "no license dir"
+            find / -name "Unity_lic.ulf" -not -path "/proc/*" 2>/dev/null || true'
