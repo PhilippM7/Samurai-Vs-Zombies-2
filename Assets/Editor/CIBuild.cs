@@ -15,7 +15,9 @@ public static class CIBuild
         var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
         Debug.Log("CIBuild: building scenes: " + string.Join(", ", scenes));
 
-        var report = BuildPipeline.BuildPlayer(scenes, "Build/SvZ2-arm64.apk", BuildTarget.Android, BuildOptions.None);
+        // Development build to match upstream releases: enables the in-game debug
+        // console (4-finger tap), the only remaining source of hard currency.
+        var report = BuildPipeline.BuildPlayer(scenes, "Build/SvZ2-arm64.apk", BuildTarget.Android, BuildOptions.Development);
         if (report.summary.result != BuildResult.Succeeded)
         {
             Debug.LogError("CIBuild: build failed: " + report.summary.result);
