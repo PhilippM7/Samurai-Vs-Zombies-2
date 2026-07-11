@@ -6,26 +6,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Write Unity license
+      - name: Build with Unity 2019.4 (IL2CPP, ARM64)
+        uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        run: printf '%s' "$UNITY_LICENSE" > Unity_lic.ulf
-
-      - name: Build ARM64 APK (Unity 2018.4.36f1, IL2CPP)
-        env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        run: |
-          docker run --rm -v "$PWD:/project" -w /project \
-            -e UNITY_EMAIL -e UNITY_PASSWORD \
-            unityci/editor:ubuntu-2018.4.36f1-android-3.2.2 bash -c '
-            mkdir -p /root/.local/share/unity3d/Unity
-            cp /project/Unity_lic.ulf /root/.local/share/unity3d/Unity/Unity_lic.ulf
-            unity-editor -batchmode -nographics -quit -logFile /dev/stdout \
-              -username "$UNITY_EMAIL" -password "$UNITY_PASSWORD" || true
-            unity-editor -batchmode -nographics -quit -logFile /dev/stdout \
-              -projectPath /project -buildTarget Android -accept-apiupdate \
-              -executeMethod CIBuild.BuildAndroid'
+        with:
+          unityVersion: 2019.4.40f1
+          targetPlatform: Android
+          buildMethod: CIBuild.BuildAndroid
+          customParameters: -accept-apiupdate
+          allowDirtyBuild: true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
