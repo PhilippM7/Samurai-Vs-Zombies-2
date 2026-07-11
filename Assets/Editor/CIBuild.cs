@@ -12,6 +12,18 @@ public static class CIBuild
         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
 
+        var keystoreName = Environment.GetEnvironmentVariable("ANDROID_KEYSTORE_NAME");
+        var keystorePass = Environment.GetEnvironmentVariable("ANDROID_KEYSTORE_PASS");
+        if (!string.IsNullOrEmpty(keystoreName) && !string.IsNullOrEmpty(keystorePass))
+        {
+            PlayerSettings.Android.useCustomKeystore = true;
+            PlayerSettings.Android.keystoreName = keystoreName;
+            PlayerSettings.Android.keystorePass = keystorePass;
+            PlayerSettings.Android.keyaliasName = Environment.GetEnvironmentVariable("ANDROID_KEYALIAS_NAME");
+            PlayerSettings.Android.keyaliasPass = Environment.GetEnvironmentVariable("ANDROID_KEYALIAS_PASS");
+            Debug.Log("CIBuild: signing with custom keystore " + keystoreName);
+        }
+
         var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
         Debug.Log("CIBuild: building scenes: " + string.Join(", ", scenes));
 
