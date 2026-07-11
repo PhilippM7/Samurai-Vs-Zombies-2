@@ -3,8 +3,12 @@ using UnityEngine;
 
 public class GameCenterBinding
 {
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern bool _gameCenterIsGameCenterAvailable();
+#else
+	private static bool _gameCenterIsGameCenterAvailable() { return false; }
+#endif
 
 	public static bool isGameCenterAvailable()
 	{
@@ -15,8 +19,12 @@ public class GameCenterBinding
 		return false;
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterAuthenticateLocalPlayer();
+#else
+	private static void _gameCenterAuthenticateLocalPlayer() { }
+#endif
 
 	public static void authenticateLocalPlayer()
 	{
@@ -26,8 +34,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern bool _gameCenterIsPlayerAuthenticated();
+#else
+	private static bool _gameCenterIsPlayerAuthenticated() { return false; }
+#endif
 
 	public static bool isPlayerAuthenticated()
 	{
@@ -38,8 +50,12 @@ public class GameCenterBinding
 		return false;
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern string _gameCenterPlayerAlias();
+#else
+	private static string _gameCenterPlayerAlias() { return string.Empty; }
+#endif
 
 	public static string playerAlias()
 	{
@@ -50,8 +66,12 @@ public class GameCenterBinding
 		return string.Empty;
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern string _gameCenterPlayerIdentifier();
+#else
+	private static string _gameCenterPlayerIdentifier() { return string.Empty; }
+#endif
 
 	public static string playerIdentifier()
 	{
@@ -62,8 +82,12 @@ public class GameCenterBinding
 		return string.Empty;
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern bool _gameCenterIsUnderage();
+#else
+	private static bool _gameCenterIsUnderage() { return false; }
+#endif
 
 	public static bool isUnderage()
 	{
@@ -74,8 +98,12 @@ public class GameCenterBinding
 		return false;
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterRetrieveFriends();
+#else
+	private static void _gameCenterRetrieveFriends() { }
+#endif
 
 	public static void retrieveFriends()
 	{
@@ -85,8 +113,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterLoadPlayerData(string playerIds);
+#else
+	private static void _gameCenterLoadPlayerData(string playerIds) { }
+#endif
 
 	public static void loadPlayerData(string[] playerIdArray)
 	{
@@ -96,8 +128,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterLoadLeaderboardLeaderboardTitles();
+#else
+	private static void _gameCenterLoadLeaderboardLeaderboardTitles() { }
+#endif
 
 	public static void loadLeaderboardTitles()
 	{
@@ -107,8 +143,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterReportScore(long score, string leaderboardId);
+#else
+	private static void _gameCenterReportScore(long score, string leaderboardId) { }
+#endif
 
 	public static void reportScore(long score, string leaderboardId)
 	{
@@ -118,8 +158,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterShowLeaderboardWithTimeScope(int timeScope);
+#else
+	private static void _gameCenterShowLeaderboardWithTimeScope(int timeScope) { }
+#endif
 
 	public static void showLeaderboardWithTimeScope(GameCenterLeaderboardTimeScope timeScope)
 	{
@@ -129,8 +173,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterShowLeaderboardWithTimeScopeAndLeaderboardId(int timeScope, string leaderboardId);
+#else
+	private static void _gameCenterShowLeaderboardWithTimeScopeAndLeaderboardId(int timeScope, string leaderboardId) { }
+#endif
 
 	public static void showLeaderboardWithTimeScopeAndLeaderboard(GameCenterLeaderboardTimeScope timeScope, string leaderboardId)
 	{
@@ -140,8 +188,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterRetrieveScores(bool friendsOnly, int timeScope, int start, int end);
+#else
+	private static void _gameCenterRetrieveScores(bool friendsOnly, int timeScope, int start, int end) { }
+#endif
 
 	public static void retrieveScores(bool friendsOnly, GameCenterLeaderboardTimeScope timeScope, int start, int end)
 	{
@@ -151,8 +203,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterRetrieveScoresForLeaderboard(bool friendsOnly, int timeScope, int start, int end, string leaderboardId);
+#else
+	private static void _gameCenterRetrieveScoresForLeaderboard(bool friendsOnly, int timeScope, int start, int end, string leaderboardId) { }
+#endif
 
 	public static void retrieveScores(bool friendsOnly, GameCenterLeaderboardTimeScope timeScope, int start, int end, string leaderboardId)
 	{
@@ -162,8 +218,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterRetrieveScoresForPlayerId(string playerId);
+#else
+	private static void _gameCenterRetrieveScoresForPlayerId(string playerId) { }
+#endif
 
 	public static void retrieveScoresForPlayerId(string playerId)
 	{
@@ -173,8 +233,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterRetrieveScoresForPlayerIdAndLeaderboard(string playerId, string leaderboardId);
+#else
+	private static void _gameCenterRetrieveScoresForPlayerIdAndLeaderboard(string playerId, string leaderboardId) { }
+#endif
 
 	public static void retrieveScoresForPlayerId(string playerId, string leaderboardId)
 	{
@@ -184,8 +248,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterReportAchievement(string identifier, float percent);
+#else
+	private static void _gameCenterReportAchievement(string identifier, float percent) { }
+#endif
 
 	public static void reportAchievement(string identifier, float percent)
 	{
@@ -195,8 +263,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterGetAchievements();
+#else
+	private static void _gameCenterGetAchievements() { }
+#endif
 
 	public static void getAchievements()
 	{
@@ -206,8 +278,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterResetAchievements();
+#else
+	private static void _gameCenterResetAchievements() { }
+#endif
 
 	public static void resetAchievements()
 	{
@@ -217,8 +293,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterShowAchievements();
+#else
+	private static void _gameCenterShowAchievements() { }
+#endif
 
 	public static void showAchievements()
 	{
@@ -228,8 +308,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterRetrieveAchievementMetadata();
+#else
+	private static void _gameCenterRetrieveAchievementMetadata() { }
+#endif
 
 	public static void retrieveAchievementMetadata()
 	{
@@ -239,8 +323,12 @@ public class GameCenterBinding
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void _gameCenterShowCompletionBannerForAchievements();
+#else
+	private static void _gameCenterShowCompletionBannerForAchievements() { }
+#endif
 
 	public static void showCompletionBannerForAchievements()
 	{

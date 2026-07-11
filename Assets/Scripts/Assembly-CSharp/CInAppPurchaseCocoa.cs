@@ -122,36 +122,80 @@ public class CInAppPurchaseCocoa : ICInAppPurchase
 		}
 	}
 
+#if UNITY_IOS
 	[DllImport("__Internal", CharSet = CharSet.Ansi)]
 	private static extern void IAPNativeInit(string[] products, string[] ids);
+#else
+	private static void IAPNativeInit(string[] products, string[] ids) { }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal", CharSet = CharSet.Ansi)]
 	private static extern IntPtr IAPNativeRequestProductData();
+#else
+	private static IntPtr IAPNativeRequestProductData() { return IntPtr.Zero; }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal", CharSet = CharSet.Ansi)]
 	private static extern void IAPNativeBuyProduct(string product);
+#else
+	private static void IAPNativeBuyProduct(string product) { }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern int IAPNativeGetTransactionStatus();
+#else
+	private static int IAPNativeGetTransactionStatus() { return 0; }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern int IAPNativeRestoreCompletedTransactions();
+#else
+	private static int IAPNativeRestoreCompletedTransactions() { return 0; }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern int IAPNativeGetRestoreStatus();
+#else
+	private static int IAPNativeGetRestoreStatus() { return 0; }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal", CharSet = CharSet.Ansi)]
 	private static extern IntPtr IAPNativeRetrieveProduct();
+#else
+	private static IntPtr IAPNativeRetrieveProduct() { return IntPtr.Zero; }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern bool IAPNativeIsTurnedOn();
+#else
+	private static bool IAPNativeIsTurnedOn() { return false; }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern int IAPNativeGetRetrievalQueueCount();
+#else
+	private static int IAPNativeGetRetrievalQueueCount() { return 0; }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal", CharSet = CharSet.Ansi)]
 	private static extern IntPtr IAPNativeGetRetrievalQueueItem(int index);
+#else
+	private static IntPtr IAPNativeGetRetrievalQueueItem(int index) { return IntPtr.Zero; }
+#endif
 
+#if UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void IAPNativeRetrievalQueueDispose(int numItems);
+#else
+	private static void IAPNativeRetrievalQueueDispose(int numItems) { }
+#endif
 }
