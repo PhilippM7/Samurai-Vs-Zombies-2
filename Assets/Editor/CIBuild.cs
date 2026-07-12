@@ -37,4 +37,23 @@ public static class CIBuild
         }
         Debug.Log("CIBuild: build succeeded");
     }
+
+    public static void BuildWindows()
+    {
+        PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup.Standalone, ApiCompatibilityLevel.NET_4_6);
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
+
+        var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+        Debug.Log("CIBuild: building scenes: " + string.Join(", ", scenes));
+
+        // Development build so the debug console (4-finger tap / mapped keys) is
+        // available for testing on PC too.
+        var report = BuildPipeline.BuildPlayer(scenes, "Build/SvZ2.exe", BuildTarget.StandaloneWindows64, BuildOptions.Development);
+        if (report.summary.result != BuildResult.Succeeded)
+        {
+            Debug.LogError("CIBuild: build failed: " + report.summary.result);
+            EditorApplication.Exit(1);
+        }
+        Debug.Log("CIBuild: build succeeded");
+    }
 }
