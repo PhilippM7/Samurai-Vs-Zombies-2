@@ -33,7 +33,7 @@ public class GripNetwork
 	{
 		get
 		{
-			return GripNetwork_Login.Instance != null && GripNetwork_Login.Instance.Ready;
+			return OfflineBackend.Enabled || (GripNetwork_Login.Instance != null && GripNetwork_Login.Instance.Ready);
 		}
 	}
 
@@ -41,18 +41,42 @@ public class GripNetwork
 	{
 		get
 		{
-			return GripNetwork_Login.Instance != null && GripNetwork_Login.Instance.Busy;
+			return !OfflineBackend.Enabled && GripNetwork_Login.Instance != null && GripNetwork_Login.Instance.Busy;
+		}
+	}
+
+	// Profile/owner id for local records. Online this is the GameSpy profile id;
+	// offline it is a stable non-zero id (0 is reserved for AI opponents).
+	public static int OwnerProfileId
+	{
+		get
+		{
+			if (OfflineBackend.Enabled)
+			{
+				return OfflineBackend.LocalProfileId;
+			}
+			return GameSpyAccountManager.SecurityToken.ProfileId;
 		}
 	}
 
 	public static void CreateAccount(string nickName, string password, string email, Action<Result> loginCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			OfflineBackend.Login(loginCallback);
+			return;
+		}
 		UnityThreadHelper.Activate();
 		GripNetwork_Login.Instance.Create(nickName, password, email, loginCallback);
 	}
 
 	public static void Login(string nickName, string password, Action<Result> loginCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			OfflineBackend.Login(loginCallback);
+			return;
+		}
 		UnityThreadHelper.Activate();
 		GripNetwork_Login.Instance.Login(nickName, password, loginCallback);
 	}
@@ -73,6 +97,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour CreateRecord(string tableID, GripField[] fields, Action<Result, int> recordCreatedCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.CreateRecord(tableID, fields, recordCreatedCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_CreateRecord");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_CreateRecord gripNetwork_CreateRecord = gameObject.AddComponent<GripNetwork_CreateRecord>();
@@ -82,6 +110,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour RemoveRecord(string tableID, int recordID, Action<Result, int> recordRemovedCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.RemoveRecord(tableID, recordID, recordRemovedCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_RemoveRecord");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_RemoveRecord gripNetwork_RemoveRecord = gameObject.AddComponent<GripNetwork_RemoveRecord>();
@@ -91,7 +123,7 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour SearchRecordsOrGetMyRecords(string tableName, string[] fieldNames, int profileId, int numRecords, Action<Result, GripField[,]> searchUpdateCallback)
 	{
-		if (profileId == GameSpyAccountManager.SecurityToken.ProfileId)
+		if (profileId == OwnerProfileId)
 		{
 			return GetMyRecords(tableName, fieldNames, searchUpdateCallback);
 		}
@@ -105,6 +137,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour GetMyRecords(string tableName, string[] fieldNames, Action<Result, GripField[,]> searchUpdateCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.GetMyRecords((fieldNames != null) ? fieldNames.Length : 1, searchUpdateCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_GetMyRecords");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_GetMyRecords gripNetwork_GetMyRecords = gameObject.AddComponent<GripNetwork_GetMyRecords>();
@@ -114,6 +150,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour CountRecords(string tableName, string sqlStyleFilter, Action<Result, int> countUpdateCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.CountRecords(countUpdateCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_CountRecords");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_CountRecords gripNetwork_CountRecords = gameObject.AddComponent<GripNetwork_CountRecords>();
@@ -123,6 +163,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour SearchRecords(string tableName, string[] fieldNames, string sqlStyleFilter, string sqlStyleSort, int[] profileIds, int numRecordsPerPage, int pageNumber, Action<Result, GripField[,]> searchUpdateCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.SearchRecords((fieldNames != null) ? fieldNames.Length : 1, searchUpdateCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_SearchRecords");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_SearchRecords gripNetwork_SearchRecords = gameObject.AddComponent<GripNetwork_SearchRecords>();
@@ -132,6 +176,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour UpdateRecord(string tableID, int recordID, GripField[] fields, Action<Result> recordUpdatedCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.UpdateRecord(tableID, recordID, fields, recordUpdatedCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_UpdateRecord");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_UpdateRecord gripNetwork_UpdateRecord = gameObject.AddComponent<GripNetwork_UpdateRecord>();
@@ -141,6 +189,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour ReadAndLockRecord(string tableName, int ownerId, Action<Result, GripField[]> readAndLockFinishedCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.ReadAndLockRecord(readAndLockFinishedCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_ReadAndLockRecord");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_ReadAndLockRecord gripNetwork_ReadAndLockRecord = gameObject.AddComponent<GripNetwork_ReadAndLockRecord>();
@@ -150,6 +202,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour UpdateAndUnlockRecord(string tableID, int recordID, GripField[] fields, Action<Result> recordUpdatedCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.UpdateRecord(tableID, recordID, fields, recordUpdatedCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_UpdateAndUnlockRecord");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_UpdateAndUnlockRecord gripNetwork_UpdateAndUnlockRecord = gameObject.AddComponent<GripNetwork_UpdateAndUnlockRecord>();
@@ -159,6 +215,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour UnlockRecord(string tableID, int recordID, Action<Result> recordUpdatedCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.Success("OfflineBackend_UnlockRecord", recordUpdatedCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_UnlockRecord");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_UpdateAndUnlockRecord gripNetwork_UpdateAndUnlockRecord = gameObject.AddComponent<GripNetwork_UpdateAndUnlockRecord>();
@@ -168,6 +228,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour UploadFile(byte[] fileData, Action<Result, string> UploadFileCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.UploadFile(UploadFileCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_UploadFile");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_UploadFile gripNetwork_UploadFile = gameObject.AddComponent<GripNetwork_UploadFile>();
@@ -177,6 +241,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour SearchHosts(string[] keyNames, int count, string filter, Action<Result, List<GameHost>> searchHostsCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.SearchHosts(searchHostsCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_SearchHosts");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_SearchHosts gripNetwork_SearchHosts = gameObject.AddComponent<GripNetwork_SearchHosts>();
@@ -186,6 +254,10 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour SubscribeHosts(string[] keyNames, string filter, Action<Result, List<GameHost>> searchHostsCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			return OfflineBackend.SearchHosts(searchHostsCallback);
+		}
 		GameObject gameObject = new GameObject("GripNetwork_SubscribeHosts");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		GripNetwork_SubscribeHosts gripNetwork_SubscribeHosts = gameObject.AddComponent<GripNetwork_SubscribeHosts>();

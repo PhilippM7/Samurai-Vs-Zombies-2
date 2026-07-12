@@ -426,7 +426,7 @@ public class GripNetworkSaveTarget : SaveTarget
 						if (result == GripNetwork.Result.Success)
 						{
 							recordIdField.mInt = id;
-							ownerIdField.mInt = GripNetwork.GameSpyAccountManager.SecurityToken.ProfileId;
+							ownerIdField.mInt = GripNetwork.OwnerProfileId;
 						}
 						CurrentStatus = Status.Ready;
 					});
