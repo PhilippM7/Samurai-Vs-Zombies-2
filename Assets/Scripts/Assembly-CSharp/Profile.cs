@@ -1511,6 +1511,18 @@ public class Profile : Singleton<Profile>
 		}
 	}
 
+	// With the official servers gone the daily challenge is the main repeatable
+	// content, so allow rerolling it: this offset shifts the date-based seed and
+	// thereby also un-marks today's completion.
+	// Set via debug console: profile set dailyChallengeSeedOffset <n>
+	public int dailyChallengeSeedOffset
+	{
+		get
+		{
+			return mSavedData.GetValueInt("dailyChallengeSeedOffset");
+		}
+	}
+
 	public bool CompletedTodaysDailyChallenge
 	{
 		get
@@ -1832,7 +1844,12 @@ public class Profile : Singleton<Profile>
 
 	public static int GetDailyChallengeDaysSinceStart()
 	{
-		return CurrentTime.DayOfYear;
+		int num = CurrentTime.DayOfYear;
+		if (Singleton<Profile>.Exists)
+		{
+			num += Singleton<Profile>.Instance.dailyChallengeSeedOffset;
+		}
+		return num;
 	}
 
 	public void RefreshDailyChallenge()
