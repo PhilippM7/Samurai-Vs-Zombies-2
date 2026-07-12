@@ -19,9 +19,10 @@ jobs:
           customParameters: -accept-apiupdate
           allowDirtyBuild: true
 
-      - name: Zip build
+      - name: Show build output and zip
         run: |
-          cd build/StandaloneWindows64 || cd build
+          echo "=== Build/ ==="; ls -la Build || true
+          cd Build
           zip -r "$GITHUB_WORKSPACE/SvZ2-Windows.zip" .
 
       - name: Upload Windows build
