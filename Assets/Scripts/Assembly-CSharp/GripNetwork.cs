@@ -132,6 +132,12 @@ public class GripNetwork
 
 	public static DisposableMonoBehaviour SearchFirstRecord(string tableName, string[] fieldNames, int profileId, Action<Result, GripField[,]> searchUpdateCallback)
 	{
+		if (OfflineBackend.Enabled)
+		{
+			// A fresh offline player has no stored record yet; signal not-found so
+			// callers take their "no data" path instead of indexing an empty result.
+			return OfflineBackend.FirstRecordNotFound(searchUpdateCallback);
+		}
 		return SearchRecords(tableName, fieldNames, string.Empty, string.Empty, new int[1] { profileId }, 1, 0, searchUpdateCallback);
 	}
 

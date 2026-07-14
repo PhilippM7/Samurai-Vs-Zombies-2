@@ -144,6 +144,20 @@ public static class OfflineBackend
 		});
 	}
 
+	// "Load my single record" path: no stored record offline for a fresh player.
+	// Return RecordNotFound so callers take their null/default branch rather than
+	// indexing row 0 of an empty result set.
+	public static DisposableMonoBehaviour FirstRecordNotFound(Action<GripNetwork.Result, GripField[,]> callback)
+	{
+		return Dispatch("OfflineBackend_FirstRecordNotFound", delegate
+		{
+			if (callback != null)
+			{
+				callback(GripNetwork.Result.RecordNotFound, new GripField[0, 1]);
+			}
+		});
+	}
+
 	public static DisposableMonoBehaviour CountRecords(Action<GripNetwork.Result, int> callback)
 	{
 		return Dispatch("OfflineBackend_CountRecords", delegate

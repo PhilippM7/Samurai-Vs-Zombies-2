@@ -70,7 +70,13 @@ public class IAPSchema
 		string text = referenceId;
 		text = ((!referenceId.Contains(".sub.")) ? referenceId : referenceId.Remove(referenceId.IndexOf(".sub.")).ToUpper());
 		string value = DataBundleRuntime.Instance.GetValue<string>(typeof(IAPSchema), tableName, text, "icon", true);
-		_priceInDollars = double.Parse(DataBundleRuntime.Instance.GetValue<string>(typeof(IAPSchema), "IAPTable", text, "priceString", false));
+		// Parse culture-invariantly (the price uses '.' as the decimal separator)
+		// and tolerate empty/malformed values so a bad price never aborts init.
+		string priceValue = DataBundleRuntime.Instance.GetValue<string>(typeof(IAPSchema), "IAPTable", text, "priceString", false);
+		if (!double.TryParse(priceValue, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out _priceInDollars))
+		{
+			_priceInDollars = 0.0;
+		}
 		PriceInDollars = (float)_priceInDollars;
 		SharedResourceLoader.SharedResource cachedResource = ResourceCache.GetCachedResource(value, 1);
 		if (cachedResource != null && !object.ReferenceEquals(cachedResource.Resource, null))
