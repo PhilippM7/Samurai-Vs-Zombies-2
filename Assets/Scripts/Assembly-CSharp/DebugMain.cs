@@ -73,6 +73,13 @@ public class DebugMain : SingletonSpawningMonoBehaviour<DebugMain>
 
 	private void Update()
 	{
+		// Emergency unstick: some legacy flows disable global input and used to
+		// rely on server callbacks to re-enable it. F9 forces input back on.
+		if (Input.GetKeyDown(KeyCode.F9) && SingletonMonoBehaviour<InputManager>.Exists)
+		{
+			SingletonMonoBehaviour<InputManager>.Instance.InputEnabled = true;
+			Debug.Log("DebugMain: forced InputEnabled = true (F9)");
+		}
 		UpdateConsoleShowControls();
 		Singleton<GrGui>.Instance.update();
 	}

@@ -58,6 +58,13 @@ public class InputManager : SingletonMonoBehaviour<InputManager>
 		}
 		set
 		{
+			// Diagnostic for the offline port: these disable/enable pairs used to
+			// be closed by server callbacks. Log every toggle (dev builds only) so
+			// a stuck disable can be traced in Player.log via its stack trace.
+			if (inputEnabled != value && Debug.isDebugBuild)
+			{
+				Debug.Log("InputManager.InputEnabled -> " + value + "\n" + StackTraceUtility.ExtractStackTrace());
+			}
 			inputEnabled = value;
 		}
 	}
