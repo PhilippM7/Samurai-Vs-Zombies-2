@@ -145,7 +145,7 @@ public class GripNetwork
 	{
 		if (OfflineBackend.Enabled)
 		{
-			return OfflineBackend.GetMyRecords((fieldNames != null) ? fieldNames.Length : 1, searchUpdateCallback);
+			return OfflineBackend.GetMyRecords(tableName, fieldNames, searchUpdateCallback);
 		}
 		GameObject gameObject = new GameObject("GripNetwork_GetMyRecords");
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
