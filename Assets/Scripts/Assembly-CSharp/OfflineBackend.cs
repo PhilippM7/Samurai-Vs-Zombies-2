@@ -133,17 +133,19 @@ public static class OfflineBackend
 	}
 
 	// Updates carry only the changed fields (identified by name), so merge them
-	// into the existing record instead of replacing the whole thing.
+	// into the existing record instead of replacing the whole thing. Online,
+	// UpdateRecord only ever touches records made by CreateRecord; creating a
+	// record here for an unknown id produced malformed partial rows that crashed
+	// the collection load, so unknown ids are ignored.
 	public static DisposableMonoBehaviour UpdateRecord(string tableID, int recordID, GripField[] fields, Action<GripNetwork.Result> callback)
 	{
 		Table table = GetTable(tableID);
 		GripField[] existing;
-		if (!table.Records.TryGetValue(recordID, out existing))
+		if (table.Records.TryGetValue(recordID, out existing))
 		{
-			existing = new GripField[0];
+			table.Records[recordID] = MergeFields(existing, fields);
+			Save();
 		}
-		table.Records[recordID] = MergeFields(existing, fields);
-		Save();
 		return Dispatch("OfflineBackend_UpdateRecord", delegate
 		{
 			if (callback != null)
@@ -206,17 +208,39 @@ public static class OfflineBackend
 	public static DisposableMonoBehaviour GetMyRecords(string tableID, string[] fieldNames, Action<GripNetwork.Result, GripField[,]> callback)
 	{
 		Table table = GetTable(tableID);
-		List<KeyValuePair<int, GripField[]>> records = new List<KeyValuePair<int, GripField[]>>(table.Records);
 		int cols = (fieldNames != null && fieldNames.Length > 0) ? fieldNames.Length : 1;
-		GripField[,] result = new GripField[records.Count, cols];
-		for (int r = 0; r < records.Count; r++)
+
+		// Build only rows where every requested data column is present. Partial /
+		// malformed records (e.g. a stray username-only row) are skipped so the
+		// caller's index-based FromFields never hits a missing field.
+		List<GripField[]> rows = new List<GripField[]>();
+		foreach (KeyValuePair<int, GripField[]> record in table.Records)
 		{
-			int id = records[r].Key;
-			GripField[] stored = records[r].Value;
+			GripField[] row = new GripField[cols];
+			bool complete = true;
 			for (int c = 0; c < cols; c++)
 			{
 				string name = (fieldNames != null && c < fieldNames.Length) ? fieldNames[c] : string.Empty;
-				result[r, c] = BuildColumn(name, id, stored);
+				GripField field = BuildColumn(name, record.Key, record.Value);
+				if (field == null)
+				{
+					complete = false;
+					break;
+				}
+				row[c] = field;
+			}
+			if (complete)
+			{
+				rows.Add(row);
+			}
+		}
+
+		GripField[,] result = new GripField[rows.Count, cols];
+		for (int r = 0; r < rows.Count; r++)
+		{
+			for (int c = 0; c < cols; c++)
+			{
+				result[r, c] = rows[r][c];
 			}
 		}
 		return Dispatch("OfflineBackend_GetMyRecords", delegate
@@ -228,6 +252,9 @@ public static class OfflineBackend
 		});
 	}
 
+	// Returns the column value for a record, or null if the record does not
+	// carry that field (so the caller can skip the incomplete record). "recordid"
+	// and "ownerid" are synthesised because the real server assigned them.
 	private static GripField BuildColumn(string name, int recordId, GripField[] stored)
 	{
 		if (string.Equals(name, "recordid", StringComparison.OrdinalIgnoreCase))
@@ -252,7 +279,7 @@ public static class OfflineBackend
 				}
 			}
 		}
-		return new GripField(name, GripField.GripFieldType.Null);
+		return null;
 	}
 
 	// "Load my single record" path: no stored record offline for a fresh player.
